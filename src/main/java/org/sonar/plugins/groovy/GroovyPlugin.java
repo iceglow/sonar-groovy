@@ -55,26 +55,26 @@ public class GroovyPlugin extends SonarPlugin {
 
   public List<?> getExtensions() {
     return ImmutableList.of(
-        GroovyCommonRulesEngineProvider.class,
-        // CodeNarc
-        CodeNarcRuleRepository.class,
-        CodeNarcProfileExporter.class,
-        CodeNarcProfileImporter.class,
-        CodeNarcSensor.class,
-        SonarWayProfile.class,
-        // Foundation
-        Groovy.class,
-        GroovyColorizerFormat.class,
-        GroovySourceImporter.class,
-        GroovyCpdMapping.class,
-        // Main sensor
-        GroovySensor.class,
+      // Foundation
+      Groovy.class,
+      GroovyColorizerFormat.class,
+      GroovySourceImporter.class,  // comes up first as it gathers all the source directories and files
+      GroovyCpdMapping.class,
+      GroovyCommonRulesEngineProvider.class,
+      // CodeNarc
+      CodeNarcRuleRepository.class,
+      CodeNarcProfileExporter.class,
+      CodeNarcProfileImporter.class,
+      CodeNarcSensor.class,
+      SonarWayProfile.class,
+      // Main sensor
+      GroovySensor.class,
 
-        // Cobertura
-        CoberturaSensor.class,
-        CoberturaMavenPluginHandler.class,
-        // Surefire
-        SurefireSensor.class);
+      // Cobertura
+      CoberturaSensor.class,
+      CoberturaMavenPluginHandler.class,
+      // Surefire
+      SurefireSensor.class);
   }
 
 }

@@ -38,8 +38,10 @@ import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.groovy.foundation.Groovy;
 import org.sonar.plugins.groovy.foundation.GroovyRecognizer;
+import org.sonar.plugins.groovy.foundation.GroovySourceImporter;
 import org.sonar.plugins.groovy.gmetrics.CustomSourceAnalyzer;
 import org.sonar.squid.measures.Metric;
 import org.sonar.squid.text.Source;
@@ -47,10 +49,8 @@ import org.sonar.squid.text.Source;
 import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 public class GroovySensor implements Sensor {
 
@@ -70,13 +70,17 @@ public class GroovySensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    computeBaseMetrics(context, project);
-    for (File sourceDir : project.getFileSystem().getSourceDirs()) {
-      processDirectory(context, project, sourceDir);
+    List<File> realSourceDirs = new ArrayList<File>(GroovySourceImporter.realSourceDirs);
+    List<File> realFiles = new ArrayList<File>(GroovySourceImporter.realFiles);
+
+    computeBaseMetrics(context, project, realSourceDirs, realFiles);
+
+    for (File sourceDir : GroovySourceImporter.realSourceDirs) {
+      processDirectory(context, project, sourceDir, realSourceDirs);
     }
   }
 
-  private void processDirectory(SensorContext context, Project project, File sourceDir) {
+  private void processDirectory(SensorContext context, Project project, File sourceDir, List<File> realSourceDirs) {
     GMetricsRunner runner = new GMetricsRunner();
     runner.setMetricSet(new DefaultMetricSet());
     CustomSourceAnalyzer analyzer = new CustomSourceAnalyzer(sourceDir.getAbsolutePath());
@@ -86,7 +90,8 @@ public class GroovySensor implements Sensor {
     for (Entry<File, Collection<ClassResultsNode>> entry : analyzer.getResultsByFile().asMap().entrySet()) {
       File file = entry.getKey();
       Collection<ClassResultsNode> results = entry.getValue();
-      org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.fromIOFile(file, project.getFileSystem().getSourceDirs());
+
+      org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.fromIOFile(file, realSourceDirs);
       processFile(context, sonarFile, results);
     }
   }
@@ -132,14 +137,16 @@ public class GroovySensor implements Sensor {
     context.saveMeasure(sonarFile, fileComplexityDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
   }
 
-  private void computeBaseMetrics(SensorContext sensorContext, Project project) {
+  private void computeBaseMetrics(SensorContext sensorContext, Project project, List<File> realSourceDirs, List<File> realFiles) {
     Reader reader = null;
-    ProjectFileSystem fileSystem = project.getFileSystem();
     Set<org.sonar.api.resources.Directory> packageList = new HashSet<org.sonar.api.resources.Directory>();
-    for (File groovyFile : fileSystem.getSourceFiles(groovy)) {
+
+    for (File groovyFile : realFiles) {
+      if (groovyFile.getName().endsWith(".java")) continue;
+
       try {
-        reader = new StringReader(FileUtils.readFileToString(groovyFile, fileSystem.getSourceCharset().name()));
-        org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(groovyFile, fileSystem.getSourceDirs());
+        reader = new StringReader(FileUtils.readFileToString(groovyFile, project.getFileSystem().getSourceCharset().name()));
+        org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(groovyFile, realSourceDirs);
         Source source = new Source(reader, new GroovyRecognizer());
         packageList.add(new org.sonar.api.resources.Directory(resource.getParent().getKey()));
         sensorContext.saveMeasure(resource, CoreMetrics.LINES, (double) source.getMeasure(Metric.LINES));

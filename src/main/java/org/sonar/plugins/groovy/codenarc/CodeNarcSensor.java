@@ -39,6 +39,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.groovy.GroovyPlugin;
 import org.sonar.plugins.groovy.codenarc.CodeNarcXMLParser.CodeNarcViolation;
 import org.sonar.plugins.groovy.foundation.Groovy;
+import org.sonar.plugins.groovy.foundation.GroovySourceImporter;
 
 import java.io.File;
 import java.io.IOException;
@@ -115,7 +116,7 @@ public class CodeNarcSensor implements Sensor {
     exportCodeNarcConfiguration(codeNarcConfiguration);
     ImmutableList.Builder<File> result = ImmutableList.builder();
     int i = 1;
-    for (File sourceDir : project.getFileSystem().getSourceDirs()) {
+    for (File sourceDir : GroovySourceImporter.realSourceDirs) {
       CodeNarcRunner runner = new CodeNarcRunner();
       FilesystemSourceAnalyzer analyzer = new FilesystemSourceAnalyzer();
 

@@ -28,6 +28,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.plugins.groovy.foundation.Groovy;
+import org.sonar.plugins.groovy.foundation.GroovySourceImporter;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -64,6 +65,8 @@ public class GroovySensorTest {
     java.io.File sourceDir = new java.io.File("src/test/resources/org/sonar/plugins/groovy/gmetrics");
     java.io.File sourceFile = new java.io.File(sourceDir, "Greeting.groovy");
     List<java.io.File> sourceDirs = Arrays.asList(sourceDir);
+    GroovySourceImporter.realSourceDirs.addAll(sourceDirs);
+    GroovySourceImporter.realFiles.add(sourceFile);
     when(pfs.getSourceDirs()).thenReturn(sourceDirs);
     when(pfs.getSourceCharset()).thenReturn(Charset.forName("UTF-8"));
     when(pfs.getSourceFiles(new Groovy())).thenReturn(Arrays.asList(sourceFile));
