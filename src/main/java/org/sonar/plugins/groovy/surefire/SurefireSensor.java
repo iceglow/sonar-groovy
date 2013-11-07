@@ -26,6 +26,7 @@ import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
@@ -39,7 +40,14 @@ public class SurefireSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(SurefireSensor.class);
 
-  @DependsUpon
+
+  private Settings settings;
+
+  public SurefireSensor(Settings settings) {
+    this.settings = settings;
+  }
+
+    @DependsUpon
   public Class<?> dependsUponCoverageSensors() {
     return CoverageExtension.class;
   }
@@ -49,7 +57,7 @@ public class SurefireSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    File dir = SurefireUtils.getReportsDirectory(project);
+    File dir = SurefireUtils.getReportsDirectory(settings, project);
     collect(project, context, dir);
   }
 

@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.codehaus.sonar-plugins</groupId>
     <artifactId>parent</artifactId>
-    <version>16</version>
+    <version>17</version>
   </parent>
 
   <artifactId>sonar-groovy-plugin</artifactId>
@@ -64,9 +64,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar.plugins</groupId>
+      <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-surefire-plugin</artifactId>
-      <version>${sonar.version}</version>
+      <version>1.5</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

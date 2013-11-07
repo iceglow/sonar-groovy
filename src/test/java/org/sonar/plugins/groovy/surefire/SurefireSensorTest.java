@@ -21,6 +21,7 @@ package org.sonar.plugins.groovy.surefire;
 
 import org.junit.Test;
 import org.sonar.api.batch.CoverageExtension;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.groovy.foundation.Groovy;
 
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 public class SurefireSensorTest {
 
-  private SurefireSensor sensor = new SurefireSensor();
+  private SurefireSensor sensor = new SurefireSensor(new Settings());
 
   @Test
   public void should_execute_on_project() {
